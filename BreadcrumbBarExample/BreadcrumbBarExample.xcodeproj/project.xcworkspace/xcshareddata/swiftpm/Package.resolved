@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "BreadcrumbBar",
+        "repositoryURL": "git@github.com:dabbott/BreadcrumbBar.git",
+        "state": {
+          "branch": "master",
+          "revision": "467908c907f3c4e4e757ff04b8d0b475106b21d9",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}
