@@ -30,7 +30,10 @@ public class BreadcrumbItem: NSBox {
 
     // MARK: Lifecycle
 
-    public init() {
+    public init(titleText: String = "", icon: NSImage? = nil) {
+        self.titleText = titleText
+        self.icon = icon
+
         super.init(frame: .zero)
 
         setUpViews()
@@ -53,6 +56,8 @@ public class BreadcrumbItem: NSBox {
 
     public var onClick: (() -> Void)?
 
+    public var onLongClick: (() -> Void)?
+
     public var style: Style = .default {
         didSet {
             if oldValue != style {
@@ -69,7 +74,13 @@ public class BreadcrumbItem: NSBox {
         }
     }
 
-    public var icon: NSImage?
+    public var icon: NSImage? {
+        didSet {
+            if oldValue != icon {
+                update()
+            }
+        }
+    }
 
     // MARK: Private
 
@@ -106,6 +117,8 @@ public class BreadcrumbItem: NSBox {
 
     private var widthAnchorConstraint: NSLayoutConstraint?
     private var titleViewLeadingAnchorConstraint: NSLayoutConstraint?
+
+    private var longPressWorkItem: DispatchWorkItem?
 
     private func setUpViews() {
         boxType = .custom
@@ -156,11 +169,27 @@ public class BreadcrumbItem: NSBox {
         }
 
         pressed = false
+
+        longPressWorkItem?.cancel()
+        longPressWorkItem = nil
     }
 
     public override func mouseDown(with event: NSEvent) {
         if hovered {
             pressed = true
+
+            let workItem = DispatchWorkItem(block: { [weak self] in
+                guard let self = self else { return }
+
+                self.hovered = false
+                self.pressed = false
+
+                self.onLongClick?()
+            })
+
+            longPressWorkItem = workItem
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: workItem)
         }
     }
 

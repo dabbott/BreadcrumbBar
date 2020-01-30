@@ -15,20 +15,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var window: NSWindow!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Insert code here to initialize your application
-
-        let breadcrumbBar = BreadcrumbBar()
-
-        breadcrumbBar.fillColor = .white
-
         let contentView = window.contentView!
 
-        contentView.addSubview(breadcrumbBar)
+        let navigationBar = NavigationBar()
 
-        breadcrumbBar.translatesAutoresizingMaskIntoConstraints = false
-        breadcrumbBar.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
-        breadcrumbBar.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
-        breadcrumbBar.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+        navigationBar.fillColor = NSColor.controlBackgroundColor
+
+        contentView.addSubview(navigationBar)
+
+        navigationBar.translatesAutoresizingMaskIntoConstraints = false
+        navigationBar.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
+        navigationBar.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
+        navigationBar.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
 
         let home = FileManager.default.homeDirectoryForCurrentUser
 
@@ -43,10 +41,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return Breadcrumb(id: UUID(), title: component, icon: NSWorkspace.shared.icon(forFile: path))
         }
 
-        breadcrumbBar.breadcrumbs = breadcrumbs
+        navigationBar.breadcrumbs = breadcrumbs
 
-        breadcrumbBar.onClickBreadcrumb = { id in
+        navigationBar.onClickBreadcrumb = { id in
             Swift.print("click", breadcrumbs.first(where: { $0.id == id })?.title ?? "")
+        }
+
+        let menu = NSMenu()
+
+        menu.addItem(withTitle: "Test 1", action: nil, keyEquivalent: "")
+        menu.addItem(withTitle: "Test 2", action: nil, keyEquivalent: "")
+
+        navigationBar.menuForForwardItem = {
+            return menu
+        }
+
+        navigationBar.menuForBackItem = {
+            return menu
         }
     }
 

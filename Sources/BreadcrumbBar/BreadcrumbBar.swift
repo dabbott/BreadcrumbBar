@@ -27,7 +27,7 @@ public struct Breadcrumb: Equatable {
 public class BreadcrumbBar: NSBox {
 
     public struct Style: Equatable {
-        public var breadcrumbStyle: BreadcrumbItem.Style = .default
+        public var breadcrumbItemStyle: BreadcrumbItem.Style = .default
         public var padding: CGFloat = 2
         public var dividerPadding: CGFloat = 4
         public var dividerImage: NSImage = NSImage(size: NSSize(width: 6, height: 14), flipped: false, drawingHandler: { rect in
@@ -114,9 +114,8 @@ public class BreadcrumbBar: NSBox {
         stackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
         for breadcrumb in breadcrumbs {
-            let item = BreadcrumbItem()
-            item.icon = breadcrumb.icon
-            item.titleText = breadcrumb.title
+            let item = BreadcrumbItem(titleText: breadcrumb.title, icon: breadcrumb.icon)
+            item.style = style.breadcrumbItemStyle
             item.onClick = { [unowned self] in self.onClickBreadcrumb?(breadcrumb.id) }
             stackView.addArrangedSubview(item)
 
