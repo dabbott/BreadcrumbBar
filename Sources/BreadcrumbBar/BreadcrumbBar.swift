@@ -48,7 +48,10 @@ public class BreadcrumbBar: NSBox {
 
     // MARK: Lifecycle
 
-    public init() {
+    public init(breadcrumbs: [Breadcrumb] = [], isEnabled: Bool = true) {
+        self.breadcrumbs = breadcrumbs
+        self.isEnabled = isEnabled
+
         super.init(frame: .zero)
 
         setUpViews()
@@ -63,7 +66,15 @@ public class BreadcrumbBar: NSBox {
 
     // MARK: Public
 
-    public var breadcrumbs: [Breadcrumb] = [] {
+    public var isEnabled: Bool {
+        didSet {
+            if oldValue != isEnabled {
+                update()
+            }
+        }
+    }
+
+    public var breadcrumbs: [Breadcrumb] {
         didSet {
             if oldValue != breadcrumbs {
                 update()
@@ -115,6 +126,7 @@ public class BreadcrumbBar: NSBox {
 
         for breadcrumb in breadcrumbs {
             let item = BreadcrumbItem(titleText: breadcrumb.title, icon: breadcrumb.icon)
+            item.toolTip = breadcrumb.title
             item.style = style.breadcrumbItemStyle
             item.onClick = { [unowned self] in self.onClickBreadcrumb?(breadcrumb.id) }
             stackView.addArrangedSubview(item)
@@ -129,7 +141,8 @@ public class BreadcrumbBar: NSBox {
                 stackView.setCustomSpacing(style.dividerPadding, after: divider)
             }
         }
-    }
 
+        alphaValue = isEnabled ? 1 : 0.5
+    }
 }
 

@@ -37,6 +37,22 @@ public class NavigationControl: NSBox {
 
     // MARK: Public
 
+    public var isForwardEnabled: Bool = false {
+        didSet {
+            if oldValue != isForwardEnabled {
+                update()
+            }
+        }
+    }
+
+    public var isBackEnabled: Bool = false {
+        didSet {
+            if oldValue != isBackEnabled {
+                update()
+            }
+        }
+    }
+
     public var onClickForward: (() -> Void)?
 
     public var onClickBack: (() -> Void)?
@@ -72,6 +88,13 @@ public class NavigationControl: NSBox {
         borderType = .noBorder
         contentViewMargins = .zero
 
+        forwardItem.toolTip = "Go Forward"
+        backItem.toolTip = "Go Back"
+
+        forwardItem.onClick = { [unowned self] in self.onClickForward?() }
+
+        backItem.onClick = { [unowned self] in self.onClickBack?() }
+
         forwardItem.onLongClick = { [unowned self] in
             guard let menu = self.menuForForwardItem?() else { return }
 
@@ -106,6 +129,9 @@ public class NavigationControl: NSBox {
     private func update() {
         forwardItem.style = style.breadcrumbItemStyle
         backItem.style = style.breadcrumbItemStyle
+
+        forwardItem.isEnabled = isForwardEnabled
+        backItem.isEnabled = isBackEnabled
     }
 }
 

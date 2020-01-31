@@ -47,24 +47,52 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             Swift.print("click", breadcrumbs.first(where: { $0.id == id })?.title ?? "")
         }
 
-        let menu = NSMenu()
+        let backMenu = NSMenu()
 
-        menu.addItem(withTitle: "Test 1", action: nil, keyEquivalent: "")
-        menu.addItem(withTitle: "Test 2", action: nil, keyEquivalent: "")
+        let forwardMenu = NSMenu()
 
-        navigationBar.menuForForwardItem = {
-            return menu
+        forwardMenu.addItem(withTitle: "Test 1", action: nil, keyEquivalent: "")
+        forwardMenu.addItem(withTitle: "Test 2", action: nil, keyEquivalent: "")
+
+        navigationBar.onClickBack = {
+            Swift.print("Back")
+
+            if let first = backMenu.items.first {
+                backMenu.removeItem(first)
+                forwardMenu.addItem(first)
+
+                navigationBar.isBackEnabled = backMenu.items.count > 0
+                navigationBar.isForwardEnabled = forwardMenu.items.count > 0
+            }
+        }
+
+        navigationBar.onClickForward = {
+            Swift.print("Forward")
+
+            if let first = forwardMenu.items.first {
+                forwardMenu.removeItem(first)
+                backMenu.addItem(first)
+
+                navigationBar.isBackEnabled = backMenu.items.count > 0
+                navigationBar.isForwardEnabled = forwardMenu.items.count > 0
+            }
         }
 
         navigationBar.menuForBackItem = {
-            return menu
+            return backMenu
         }
+
+        navigationBar.menuForForwardItem = {
+            return forwardMenu
+        }
+
+        navigationBar.isForwardEnabled = true
+        navigationBar.isBackEnabled = false
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
     }
-
 
 }
 

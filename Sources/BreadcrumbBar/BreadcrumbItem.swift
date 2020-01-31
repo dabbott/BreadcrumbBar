@@ -24,15 +24,17 @@ public class BreadcrumbItem: NSBox {
         public var hoverBackgroundColor: NSColor = NSColor.textColor.withAlphaComponent(0.1)
         public var pressedBackgroundColor: NSColor = NSColor.textColor.withAlphaComponent(0.05)
         public var cornerRadius: CGFloat = 3
+        public var disabledAlphaValue: CGFloat = 0.5
 
         public static var `default` = Style()
     }
 
     // MARK: Lifecycle
 
-    public init(titleText: String = "", icon: NSImage? = nil) {
+    public init(titleText: String = "", icon: NSImage? = nil, isEnabled: Bool = true) {
         self.titleText = titleText
         self.icon = icon
+        self.isEnabled = isEnabled
 
         super.init(frame: .zero)
 
@@ -53,6 +55,14 @@ public class BreadcrumbItem: NSBox {
     }
 
     // MARK: Public
+
+    public var isEnabled: Bool {
+        didSet {
+            if oldValue != isEnabled {
+                update()
+            }
+        }
+    }
 
     public var onClick: (() -> Void)?
 
@@ -199,11 +209,11 @@ public class BreadcrumbItem: NSBox {
 
     private func update() {
         titleView.stringValue = titleText
-        toolTip = titleText
-
+        
         if let icon = icon {
             iconView.isHidden = false
             iconView.image = icon
+            iconView.alphaValue = isEnabled ? 1 : style.disabledAlphaValue
             titleViewLeadingAnchorConstraint?.constant = style.padding.left + 16 + style.padding.left
         } else {
             iconView.isHidden = true
@@ -213,9 +223,9 @@ public class BreadcrumbItem: NSBox {
 
         widthAnchorConstraint?.constant = min(30, attributedTitleText.size().width)
 
-        if pressed {
+        if isEnabled && pressed {
             fillColor = style.pressedBackgroundColor
-        } else if hovered {
+        } else if isEnabled && hovered {
             fillColor = style.hoverBackgroundColor
         } else {
             fillColor = style.backgroundColor

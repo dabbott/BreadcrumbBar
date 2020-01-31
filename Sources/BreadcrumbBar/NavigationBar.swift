@@ -22,7 +22,10 @@ public class NavigationBar: NSBox {
 
     // MARK: Lifecycle
 
-    public init() {
+    public init(breadcrumbs: [Breadcrumb] = [], isEnabled: Bool = true) {
+        self.breadcrumbs = breadcrumbs
+        self.isEnabled = isEnabled
+
         super.init(frame: .zero)
 
         setUpViews()
@@ -37,6 +40,14 @@ public class NavigationBar: NSBox {
 
     // MARK: Public
 
+    public var isEnabled: Bool {
+        didSet {
+            if oldValue != isEnabled {
+                update()
+            }
+        }
+    }
+
     public var breadcrumbs: [Breadcrumb] = [] {
         didSet {
             if oldValue != breadcrumbs {
@@ -50,6 +61,22 @@ public class NavigationBar: NSBox {
     public var onClickForward: (() -> Void)?
 
     public var onClickBack: (() -> Void)?
+
+    public var isForwardEnabled: Bool = false {
+        didSet {
+            if oldValue != isForwardEnabled {
+                update()
+            }
+        }
+    }
+
+    public var isBackEnabled: Bool = false {
+        didSet {
+            if oldValue != isBackEnabled {
+                update()
+            }
+        }
+    }
 
     public var menuForForwardItem: (() -> NSMenu?)?
 
@@ -105,9 +132,13 @@ public class NavigationBar: NSBox {
 
     private func update() {
         breadcrumbBar.breadcrumbs = breadcrumbs
+        breadcrumbBar.isEnabled = isEnabled
         breadcrumbBar.style = style.breadcrumbBarStyle
 
         navigationControl.style = style.navigationControlStyle
+
+        navigationControl.isForwardEnabled = isForwardEnabled
+        navigationControl.isBackEnabled = isBackEnabled
     }
 
 }
