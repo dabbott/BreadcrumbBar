@@ -31,7 +31,7 @@ public class BreadcrumbItem: NSBox {
 
     // MARK: Lifecycle
 
-    public init(titleText: String = "", icon: NSImage? = nil, isEnabled: Bool = true) {
+    public init(titleText: String? = nil, icon: NSImage? = nil, isEnabled: Bool = true) {
         self.titleText = titleText
         self.icon = icon
         self.isEnabled = isEnabled
@@ -71,15 +71,15 @@ public class BreadcrumbItem: NSBox {
     public var style: Style = .default {
         didSet {
             if oldValue != style {
-                update()
+                update(updateConstraints: true)
             }
         }
     }
 
-    public var titleText: String = "" {
+    public var titleText: String? {
         didSet {
             if oldValue != titleText {
-                attributedTitleText = NSAttributedString(string: titleText)
+                attributedTitleText = NSAttributedString(string: titleText ?? "")
             }
         }
     }
@@ -125,9 +125,6 @@ public class BreadcrumbItem: NSBox {
     private let titleView = NSTextField(labelWithString: "")
     private let iconView = NSImageView()
 
-    private var widthAnchorConstraint: NSLayoutConstraint?
-    private var titleViewLeadingAnchorConstraint: NSLayoutConstraint?
-
     private var longPressWorkItem: DispatchWorkItem?
 
     private func setUpViews() {
@@ -150,19 +147,64 @@ public class BreadcrumbItem: NSBox {
         iconView.widthAnchor.constraint(equalToConstant: 16).isActive = true
         iconView.heightAnchor.constraint(equalToConstant: 16).isActive = true
         iconView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
-        iconView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: style.padding.left).isActive = true
 
-        titleViewLeadingAnchorConstraint = titleView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: style.padding.left)
-        titleViewLeadingAnchorConstraint!.isActive = true
+        titleView.widthAnchor.constraint(greaterThanOrEqualToConstant: 12).isActive = true
 
         titleView.topAnchor.constraint(equalTo: topAnchor, constant: style.padding.top).isActive = true
-        titleView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -style.padding.right).isActive = true
         titleView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -style.padding.bottom).isActive = true
-
-        widthAnchorConstraint = titleView.widthAnchor.constraint(greaterThanOrEqualToConstant: 0)
-        widthAnchorConstraint!.isActive = true
-
         titleView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        iconViewLeadingConstraint = iconView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: style.padding.left)
+        iconViewTrailingConstraint = iconView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -style.padding.right)
+        iconViewTitleViewSiblingConstraint = iconView.trailingAnchor.constraint(equalTo: titleView.leadingAnchor, constant: -style.padding.left)
+        titleViewLeadingConstraint = titleView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: style.padding.left)
+        titleViewTrailingConstraint = titleView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -style.padding.right)
+
+        NSLayoutConstraint.activate(
+            conditionalConstraints(
+                titleViewIsHidden: titleView.isHidden,
+                iconViewIsHidden: iconView.isHidden
+            )
+        )
+    }
+
+    private var iconViewLeadingConstraint: NSLayoutConstraint?
+    private var iconViewTrailingConstraint: NSLayoutConstraint?
+    private var iconViewTitleViewSiblingConstraint: NSLayoutConstraint?
+    private var titleViewLeadingConstraint: NSLayoutConstraint?
+    private var titleViewTrailingConstraint: NSLayoutConstraint?
+
+    private func conditionalConstraints(titleViewIsHidden: Bool, iconViewIsHidden: Bool) -> [NSLayoutConstraint] {
+        var constraints: [NSLayoutConstraint?]
+
+        iconViewLeadingConstraint?.constant = style.padding.left
+        titleViewLeadingConstraint?.constant = style.padding.left
+
+        iconViewTrailingConstraint?.constant = -style.padding.right
+        titleViewTrailingConstraint?.constant = -style.padding.right
+
+        switch (titleViewIsHidden, iconViewIsHidden) {
+        case (false, false):
+            constraints = [
+                iconViewLeadingConstraint,
+                iconViewTitleViewSiblingConstraint,
+                titleViewTrailingConstraint
+            ]
+        case (false, true):
+            constraints = [
+                titleViewLeadingConstraint,
+                titleViewTrailingConstraint
+            ]
+        case (true, false):
+            constraints = [
+                iconViewLeadingConstraint,
+                iconViewTrailingConstraint
+            ]
+        case (true, true):
+            constraints = []
+        }
+
+        return constraints.compactMap({ $0 })
     }
 
     public override func mouseEntered(with event: NSEvent) {
@@ -207,21 +249,40 @@ public class BreadcrumbItem: NSBox {
         onClick?()
     }
 
-    private func update() {
-        titleView.stringValue = titleText
+    private func update(updateConstraints: Bool = false) {
+        let iconViewIsHidden = iconView.isHidden
+        let titleViewIsHidden = titleView.isHidden
+
+        if let titleText = titleText {
+            titleView.isHidden = false
+            titleView.stringValue = titleText
+        } else {
+            titleView.isHidden = true
+        }
         
         if let icon = icon {
             iconView.isHidden = false
             iconView.image = icon
             iconView.alphaValue = isEnabled ? 1 : style.disabledAlphaValue
-            titleViewLeadingAnchorConstraint?.constant = style.padding.left + 16 + style.padding.left
         } else {
             iconView.isHidden = true
             iconView.image = nil
-            titleViewLeadingAnchorConstraint?.constant = style.padding.left
         }
 
-        widthAnchorConstraint?.constant = min(30, attributedTitleText.size().width)
+        if updateConstraints || iconViewIsHidden != iconView.isHidden || titleViewIsHidden != titleView.isHidden {
+            NSLayoutConstraint.deactivate(
+                conditionalConstraints(
+                    titleViewIsHidden: titleViewIsHidden,
+                    iconViewIsHidden: iconViewIsHidden
+                )
+            )
+            NSLayoutConstraint.activate(
+                conditionalConstraints(
+                    titleViewIsHidden: titleView.isHidden,
+                    iconViewIsHidden: iconView.isHidden
+                )
+            )
+        }
 
         if isEnabled && pressed {
             fillColor = style.pressedBackgroundColor
@@ -230,6 +291,7 @@ public class BreadcrumbItem: NSBox {
         } else {
             fillColor = style.backgroundColor
         }
+
         cornerRadius = style.cornerRadius
     }
 }

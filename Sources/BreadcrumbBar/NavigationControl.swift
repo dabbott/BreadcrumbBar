@@ -73,9 +73,9 @@ public class NavigationControl: NSBox {
 
     private var stackView = NSStackView()
 
-    private var forwardItem = BreadcrumbItem(titleText: "", icon: NSImage(named: NSImage.goForwardTemplateName))
+    private var forwardItem = BreadcrumbItem(icon: NSImage(named: NSImage.goForwardTemplateName))
 
-    private var backItem = BreadcrumbItem(titleText: "", icon: NSImage(named: NSImage.goBackTemplateName))
+    private var backItem = BreadcrumbItem(icon: NSImage(named: NSImage.goBackTemplateName))
 
     private func displayPopUpMenu(_ menu: NSMenu, view: NSView) {
         let location = NSPoint(x: self.style.menuOffset.x, y: self.style.menuOffset.y - self.style.padding)
@@ -127,7 +127,13 @@ public class NavigationControl: NSBox {
     }
 
     private func update() {
-        forwardItem.style = style.breadcrumbItemStyle
+        var forwardItemStyle = style.breadcrumbItemStyle
+
+        // Make adjustments for this specific icon
+        forwardItemStyle.padding.left = forwardItemStyle.padding.left - 1
+        forwardItemStyle.padding.right = forwardItemStyle.padding.right + 1
+
+        forwardItem.style = forwardItemStyle
         backItem.style = style.breadcrumbItemStyle
 
         forwardItem.isEnabled = isForwardEnabled
