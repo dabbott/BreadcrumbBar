@@ -216,7 +216,7 @@ public class BreadcrumbItem: NSBox {
     }
 
     public override func mouseUp(with event: NSEvent) {
-        if hovered {
+        if hovered && isEnabled {
             handleClick()
         }
 
