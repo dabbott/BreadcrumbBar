@@ -90,6 +90,24 @@ public class NavigationBar: NSBox {
        }
     }
 
+    public var accessoryView: NSView? {
+        didSet {
+            if oldValue != accessoryView {
+                oldValue?.removeFromSuperview()
+
+                if let rightView = accessoryView {
+                    addSubview(rightView)
+
+                    rightView.topAnchor.constraint(equalTo: topAnchor, constant: 2).isActive = true
+                    rightView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -2).isActive = true
+                    rightView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -2).isActive = true
+
+                    breadcrumbBar.trailingAnchor.constraint(lessThanOrEqualTo: rightView.leadingAnchor, constant: -style.spacing).isActive = true
+                }
+            }
+        }
+    }
+
     // MARK: Private
 
     private var breadcrumbBar = BreadcrumbBar()

@@ -19,14 +19,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let navigationBar = NavigationBar()
 
-        navigationBar.fillColor = NSColor.controlBackgroundColor
-
         contentView.addSubview(navigationBar)
 
         navigationBar.translatesAutoresizingMaskIntoConstraints = false
         navigationBar.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
         navigationBar.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
         navigationBar.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+
+        navigationBar.fillColor = NSColor.controlBackgroundColor
+
+        navigationBar.accessoryView = BreadcrumbItem(titleText: "Test", icon: nil, isEnabled: true)
 
         let home = FileManager.default.homeDirectoryForCurrentUser
 
