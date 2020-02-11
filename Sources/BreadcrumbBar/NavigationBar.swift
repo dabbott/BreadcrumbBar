@@ -98,6 +98,7 @@ public class NavigationBar: NSBox {
                 if let rightView = accessoryView {
                     addSubview(rightView)
 
+                    rightView.translatesAutoresizingMaskIntoConstraints = false
                     rightView.topAnchor.constraint(equalTo: topAnchor, constant: 2).isActive = true
                     rightView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -2).isActive = true
                     rightView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -2).isActive = true

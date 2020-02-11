@@ -28,7 +28,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         navigationBar.fillColor = NSColor.controlBackgroundColor
 
-        navigationBar.accessoryView = BreadcrumbItem(titleText: "Test", icon: nil, isEnabled: true)
+        let testButton = BreadcrumbItem(titleText: "Test", icon: nil, isEnabled: true)
+        let accessoryView = NSStackView()
+        accessoryView.addArrangedSubview(testButton)
+
+        navigationBar.accessoryView = accessoryView
 
         let home = FileManager.default.homeDirectoryForCurrentUser
 
@@ -90,6 +94,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         navigationBar.isForwardEnabled = true
         navigationBar.isBackEnabled = false
+
+        navigationBar.heightAnchor.constraint(equalToConstant: 38).isActive = true
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
