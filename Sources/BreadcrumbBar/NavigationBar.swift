@@ -13,7 +13,7 @@ import AppKit
 public class NavigationBar: NSBox {
 
     public struct Style: Equatable {
-        public var breadcrumbBarStyle: BreadcrumbBar.Style = .default
+        public var breadcrumbBarStyle: BreadcrumbBar.Style = .compressible
         public var navigationControlStyle: NavigationControl.Style = .default
         public var spacing: CGFloat = 4
 

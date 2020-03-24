@@ -26,24 +26,33 @@ public struct Breadcrumb: Equatable {
 
 public class BreadcrumbBar: NSBox {
 
+    public static let slashDividerImage = NSImage(size: NSSize(width: 6, height: 14), flipped: false, drawingHandler: { rect in
+       NSColor.textColor.withAlphaComponent(0.4).setStroke()
+       let path = NSBezierPath()
+       path.lineWidth = 1
+       let pathRect = rect.insetBy(dx: path.lineWidth, dy: path.lineWidth)
+
+       path.move(to: pathRect.origin)
+       path.line(to: NSPoint(x: pathRect.maxX, y: pathRect.maxY))
+       path.stroke()
+       path.lineCapStyle = .round
+       return true
+   })
+
     public struct Style: Equatable {
         public var breadcrumbItemStyle: BreadcrumbItem.Style = .default
+        public var itemsHaveEqualWidth: Bool = false
         public var padding: CGFloat = 2
         public var dividerPadding: CGFloat = 4
-        public var dividerImage: NSImage = NSImage(size: NSSize(width: 6, height: 14), flipped: false, drawingHandler: { rect in
-            NSColor.textColor.withAlphaComponent(0.4).setStroke()
-            let path = NSBezierPath()
-            path.lineWidth = 1
-            let pathRect = rect.insetBy(dx: path.lineWidth, dy: path.lineWidth)
-
-            path.move(to: pathRect.origin)
-            path.line(to: NSPoint(x: pathRect.maxX, y: pathRect.maxY))
-            path.stroke()
-            path.lineCapStyle = .round
-            return true
-        })
+        public var dividerImage: NSImage? = BreadcrumbBar.slashDividerImage
 
         public static var `default` = Style()
+
+        public static var compressible: Style = {
+            var style = Style.default
+            style.breadcrumbItemStyle = .compressible
+            return style
+        }()
     }
 
     // MARK: Lifecycle
@@ -132,13 +141,24 @@ public class BreadcrumbBar: NSBox {
             stackView.addArrangedSubview(item)
 
             if breadcrumb != breadcrumbs.last {
-                let divider = NSImageView()
-                divider.image = style.dividerImage
-                divider.widthAnchor.constraint(equalToConstant: style.dividerImage.size.width).isActive = true
-                divider.heightAnchor.constraint(equalToConstant: style.dividerImage.size.height).isActive = true
                 stackView.setCustomSpacing(style.dividerPadding, after: item)
-                stackView.addArrangedSubview(divider)
-                stackView.setCustomSpacing(style.dividerPadding, after: divider)
+
+                if let dividerImage = style.dividerImage {
+                    let divider = NSImageView()
+                    divider.image = dividerImage
+                    divider.widthAnchor.constraint(equalToConstant: dividerImage.size.width).isActive = true
+                    divider.heightAnchor.constraint(equalToConstant: dividerImage.size.height).isActive = true
+                    stackView.addArrangedSubview(divider)
+                    stackView.setCustomSpacing(style.dividerPadding, after: divider)
+                }
+            }
+        }
+
+        let breadcrumbItems: [BreadcrumbItem] = stackView.arrangedSubviews.compactMap { $0 as? BreadcrumbItem }
+
+        if style.itemsHaveEqualWidth {
+            zip(breadcrumbItems.dropFirst(), breadcrumbItems.dropLast()).forEach { a, b in
+                a.widthAnchor.constraint(equalTo: b.widthAnchor).isActive = true
             }
         }
 

@@ -19,12 +19,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let navigationBar = NavigationBar()
 
+        let segmentedControl = BreadcrumbBar()
+
         contentView.addSubview(navigationBar)
+        contentView.addSubview(segmentedControl)
 
         navigationBar.translatesAutoresizingMaskIntoConstraints = false
         navigationBar.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
         navigationBar.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
         navigationBar.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+        navigationBar.heightAnchor.constraint(equalToConstant: 38).isActive = true
+
+        segmentedControl.translatesAutoresizingMaskIntoConstraints = false
+        segmentedControl.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
+        segmentedControl.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
+        segmentedControl.topAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: 4).isActive = true
+        segmentedControl.heightAnchor.constraint(equalToConstant: 38).isActive = true
 
         navigationBar.fillColor = NSColor.controlBackgroundColor
 
@@ -95,7 +105,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         navigationBar.isForwardEnabled = true
         navigationBar.isBackEnabled = false
 
-        navigationBar.heightAnchor.constraint(equalToConstant: 38).isActive = true
+        segmentedControl.style.dividerImage = nil
+        segmentedControl.style.breadcrumbItemStyle.cornerRadius = 10
+        segmentedControl.style.breadcrumbItemStyle.padding = .init(top: 4, left: 8, bottom: 4, right: 8)
+
+        segmentedControl.breadcrumbs = [
+            .init(id: UUID(), title: "Parameters", icon: nil),
+            .init(id: UUID(), title: "Logic", icon: nil),
+            .init(id: UUID(), title: "Examples", icon: nil),
+            .init(id: UUID(), title: "Types", icon: nil)
+        ]
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

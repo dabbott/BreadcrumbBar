@@ -25,8 +25,15 @@ public class BreadcrumbItem: NSBox {
         public var pressedBackgroundColor: NSColor = NSColor.textColor.withAlphaComponent(0.05)
         public var cornerRadius: CGFloat = 3
         public var disabledAlphaValue: CGFloat = 0.5
+        public var compressibleTitle: Bool = false
 
         public static var `default` = Style()
+
+        public static var compressible: Style = {
+            var style = Style.default
+            style.compressibleTitle = true
+            return style
+        }()
     }
 
     // MARK: Lifecycle
@@ -122,8 +129,11 @@ public class BreadcrumbItem: NSBox {
         owner: self
     )
 
-    private let titleView = NSTextField(labelWithString: "")
-    private let iconView = NSImageView()
+    public let titleView = NSTextField(labelWithString: "")
+
+    public let iconView = NSImageView()
+
+    private var contentLayoutGuide = NSLayoutGuide()
 
     private var longPressWorkItem: DispatchWorkItem?
 
@@ -134,6 +144,7 @@ public class BreadcrumbItem: NSBox {
 
         addSubview(iconView)
         addSubview(titleView)
+        addLayoutGuide(contentLayoutGuide)
 
         titleView.maximumNumberOfLines = -1
         titleView.lineBreakMode = .byTruncatingTail
@@ -152,13 +163,19 @@ public class BreadcrumbItem: NSBox {
 
         titleView.topAnchor.constraint(equalTo: topAnchor, constant: style.padding.top).isActive = true
         titleView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -style.padding.bottom).isActive = true
-        titleView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
-        iconViewLeadingConstraint = iconView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: style.padding.left)
-        iconViewTrailingConstraint = iconView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -style.padding.right)
+        // Use the contentLayoutGuide to center the icon and title within the BreadcrumbItem
+        contentLayoutGuide.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor).isActive = true
+        contentLayoutGuide.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor).isActive = true
+        contentLayoutGuide.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        contentLayoutGuide.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        contentLayoutGuide.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+
+        iconViewLeadingConstraint = iconView.leadingAnchor.constraint(equalTo: contentLayoutGuide.leadingAnchor, constant: style.padding.left)
+        iconViewTrailingConstraint = iconView.trailingAnchor.constraint(equalTo: contentLayoutGuide.trailingAnchor, constant: -style.padding.right)
         iconViewTitleViewSiblingConstraint = iconView.trailingAnchor.constraint(equalTo: titleView.leadingAnchor, constant: -style.padding.left)
-        titleViewLeadingConstraint = titleView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: style.padding.left)
-        titleViewTrailingConstraint = titleView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -style.padding.right)
+        titleViewLeadingConstraint = titleView.leadingAnchor.constraint(equalTo: contentLayoutGuide.leadingAnchor, constant: style.padding.left)
+        titleViewTrailingConstraint = titleView.trailingAnchor.constraint(equalTo: contentLayoutGuide.trailingAnchor, constant: -style.padding.right)
 
         NSLayoutConstraint.activate(
             conditionalConstraints(
@@ -182,6 +199,8 @@ public class BreadcrumbItem: NSBox {
 
         iconViewTrailingConstraint?.constant = -style.padding.right
         titleViewTrailingConstraint?.constant = -style.padding.right
+
+        titleView.setContentCompressionResistancePriority(style.compressibleTitle ? .defaultLow : .defaultHigh, for: .horizontal)
 
         switch (titleViewIsHidden, iconViewIsHidden) {
         case (false, false):
