@@ -45,6 +45,7 @@ public class NavigationItemStack: NSBox {
         public static var segmentedControl: Style = {
             var style = Style.default
             style.itemStyle.textColor = NSColor.controlTextColor.withAlphaComponent(0.5)
+            style.dividerImage = nil
             return style
         }()
     }
