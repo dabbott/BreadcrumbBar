@@ -31,6 +31,7 @@ public class NavigationItemView: NSBox {
         public var font: NSFont = NSFont.systemFont(ofSize: NSFont.systemFontSize(for: .regular))
         public var draggingThreshold: CGFloat = 2.0
         public var isDraggable: Bool = false
+        public var iconSize = NSSize(width: 16, height: 16)
 
         public static var `default` = Style()
 
@@ -164,14 +165,14 @@ public class NavigationItemView: NSBox {
         titleView.translatesAutoresizingMaskIntoConstraints = false
         iconView.translatesAutoresizingMaskIntoConstraints = false
 
-        iconView.widthAnchor.constraint(equalToConstant: 16).isActive = true
-        iconView.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        iconViewWidthConstraint = iconView.widthAnchor.constraint(equalToConstant: style.iconSize.width)
+        iconViewHeightConstraint = iconView.heightAnchor.constraint(equalToConstant: style.iconSize.height)
         iconView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
 
         titleView.widthAnchor.constraint(greaterThanOrEqualToConstant: 12).isActive = true
 
-        titleView.topAnchor.constraint(equalTo: topAnchor, constant: style.padding.top).isActive = true
-        titleView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -style.padding.bottom).isActive = true
+        titleViewTopConstraint = titleView.topAnchor.constraint(equalTo: topAnchor, constant: style.padding.top)
+        titleViewBottomConstraint = titleView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -style.padding.bottom)
 
         // Use the contentLayoutGuide to center the icon and title within the NavigationItemView
         contentLayoutGuide.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor).isActive = true
@@ -189,6 +190,12 @@ public class NavigationItemView: NSBox {
         titleViewTrailingConstraint = titleView.trailingAnchor.constraint(equalTo: contentLayoutGuide.trailingAnchor, constant: -style.padding.right)
 
         NSLayoutConstraint.activate(
+            [
+                titleViewTopConstraint!,
+                titleViewBottomConstraint!,
+                iconViewWidthConstraint!,
+                iconViewHeightConstraint!
+            ] +
             conditionalConstraints(
                 titleViewIsHidden: titleView.isHidden,
                 iconViewIsHidden: iconView.isHidden
@@ -198,6 +205,10 @@ public class NavigationItemView: NSBox {
 
     private var contentLayoutWidthConstraint: NSLayoutConstraint?
 
+    private var iconViewWidthConstraint: NSLayoutConstraint?
+    private var iconViewHeightConstraint: NSLayoutConstraint?
+    private var titleViewTopConstraint: NSLayoutConstraint?
+    private var titleViewBottomConstraint: NSLayoutConstraint?
     private var iconViewLeadingConstraint: NSLayoutConstraint?
     private var iconViewTrailingConstraint: NSLayoutConstraint?
     private var iconViewTitleViewSiblingConstraint: NSLayoutConstraint?
@@ -207,9 +218,14 @@ public class NavigationItemView: NSBox {
     private func conditionalConstraints(titleViewIsHidden: Bool, iconViewIsHidden: Bool) -> [NSLayoutConstraint] {
         var constraints: [NSLayoutConstraint?]
 
+        iconViewWidthConstraint?.constant = style.iconSize.width
+        iconViewHeightConstraint?.constant = style.iconSize.height
+        titleViewTopConstraint?.constant = style.padding.top
+        titleViewBottomConstraint?.constant = -style.padding.bottom
+
         iconViewLeadingConstraint?.constant = style.padding.left
         titleViewLeadingConstraint?.constant = style.padding.left
-
+        iconViewTitleViewSiblingConstraint?.constant = -style.padding.left
         iconViewTrailingConstraint?.constant = -style.padding.right
         titleViewTrailingConstraint?.constant = -style.padding.right
 
