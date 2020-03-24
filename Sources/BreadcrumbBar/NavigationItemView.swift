@@ -26,8 +26,11 @@ public class NavigationItemView: NSBox {
         public var cornerRadius: CGFloat = 3
         public var disabledAlphaValue: CGFloat = 0.5
         public var compressibleTitle: Bool = false
+        public var flexibleContainerWidth: Bool = false
         public var textColor: NSColor = NSColor.controlTextColor
         public var font: NSFont = NSFont.systemFont(ofSize: NSFont.systemFontSize(for: .regular))
+        public var draggingThreshold: CGFloat = 2.0
+        public var isDraggable: Bool = false
 
         public static var `default` = Style()
 
@@ -101,6 +104,8 @@ public class NavigationItemView: NSBox {
         }
     }
 
+    public var onRequestPasteboardItem: (() -> NSPasteboardItem?)?
+
     // MARK: Private
 
     private var attributedTitleText: NSAttributedString = NSAttributedString() {
@@ -125,15 +130,17 @@ public class NavigationItemView: NSBox {
         }
     }
 
+    private var pressedPoint = NSPoint.zero
+
     private lazy var trackingArea = NSTrackingArea(
         rect: self.frame,
         options: [.mouseEnteredAndExited, .activeAlways, .mouseMoved, .inVisibleRect],
         owner: self
     )
 
-    public let titleView = NSTextField(labelWithString: "")
+    private let titleView = NSTextField(labelWithString: "")
 
-    public let iconView = NSImageView()
+    private let iconView = NSImageView()
 
     private var contentLayoutGuide = NSLayoutGuide()
 
@@ -173,6 +180,8 @@ public class NavigationItemView: NSBox {
         contentLayoutGuide.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
         contentLayoutGuide.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
 
+        contentLayoutWidthConstraint = contentLayoutGuide.widthAnchor.constraint(equalTo: widthAnchor)
+
         iconViewLeadingConstraint = iconView.leadingAnchor.constraint(equalTo: contentLayoutGuide.leadingAnchor, constant: style.padding.left)
         iconViewTrailingConstraint = iconView.trailingAnchor.constraint(equalTo: contentLayoutGuide.trailingAnchor, constant: -style.padding.right)
         iconViewTitleViewSiblingConstraint = iconView.trailingAnchor.constraint(equalTo: titleView.leadingAnchor, constant: -style.padding.left)
@@ -186,6 +195,8 @@ public class NavigationItemView: NSBox {
             )
         )
     }
+
+    private var contentLayoutWidthConstraint: NSLayoutConstraint?
 
     private var iconViewLeadingConstraint: NSLayoutConstraint?
     private var iconViewTrailingConstraint: NSLayoutConstraint?
@@ -203,6 +214,10 @@ public class NavigationItemView: NSBox {
         titleViewTrailingConstraint?.constant = -style.padding.right
 
         titleView.setContentCompressionResistancePriority(style.compressibleTitle ? .defaultLow : .defaultHigh, for: .horizontal)
+
+        if contentLayoutWidthConstraint?.isActive != !style.flexibleContainerWidth {
+            contentLayoutWidthConstraint?.isActive = !style.flexibleContainerWidth
+        }
 
         if titleView.textColor != style.textColor {
             titleView.textColor = style.textColor
@@ -257,23 +272,56 @@ public class NavigationItemView: NSBox {
 
     public override func mouseDown(with event: NSEvent) {
         if hovered {
-            pressed = true
+            let point = convert(event.locationInWindow, from: nil)
 
-            if let _ = onLongClick {
-                let workItem = DispatchWorkItem(block: { [weak self] in
-                    guard let self = self else { return }
+            // Double check that the point is within the bounds.
+            // I recall this improves handling of quick clicks when other buttons are nearby...
+            // but maybe not necessary
+            if bounds.contains(point) {
+                pressed = true
+                pressedPoint = point
 
-                    self.hovered = false
-                    self.pressed = false
+                if let _ = onLongClick {
+                    let workItem = DispatchWorkItem(block: { [weak self] in
+                        guard let self = self else { return }
 
-                    self.onLongClick?()
-                })
+                        self.hovered = false
+                        self.pressed = false
 
-                longPressWorkItem = workItem
+                        self.onLongClick?()
+                    })
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: workItem)
+                    longPressWorkItem = workItem
+
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: workItem)
+                }
             }
         }
+    }
+
+    public override func mouseDragged(with event: NSEvent) {
+        guard style.isDraggable else { return }
+
+        let point = convert(event.locationInWindow, from: nil)
+
+        if abs(point.x - pressedPoint.x) < style.draggingThreshold &&
+            abs(point.y - pressedPoint.y) < style.draggingThreshold {
+            return
+        }
+
+        guard let pasteboardItem = onRequestPasteboardItem?() else { return }
+
+        pressed = false
+        update()
+
+        let draggingItem = NSDraggingItem(pasteboardWriter: pasteboardItem)
+
+        let pdf = dataWithPDF(inside: bounds)
+        guard let snapshot = NSImage(data: pdf) else { return }
+
+        draggingItem.setDraggingFrame(bounds, contents: snapshot)
+
+        beginDraggingSession(with: [draggingItem], event: event, source: self)
     }
 
     private func handleClick() {
@@ -324,5 +372,13 @@ public class NavigationItemView: NSBox {
         }
 
         cornerRadius = style.cornerRadius
+    }
+}
+
+// MARK: - NSDraggingSource
+
+extension NavigationItemView: NSDraggingSource {
+    public func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
+        return .move
     }
 }

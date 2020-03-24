@@ -94,8 +94,6 @@ public class NavigationItemStack: NSBox {
         }
     }
 
-    public var onClickItem: ((UUID) -> Void)?
-
     public var style: Style = Style() {
        didSet {
            if oldValue != style {
@@ -103,6 +101,10 @@ public class NavigationItemStack: NSBox {
            }
        }
     }
+
+    public var onClickItem: ((UUID) -> Void)?
+
+    public var onRequestPasteboardItem: ((UUID) -> NSPasteboardItem?)?
 
     // MARK: Private
 
@@ -141,6 +143,7 @@ public class NavigationItemStack: NSBox {
             itemView.toolTip = item.title
             itemView.style = item.id == activeItem ? style.activeItemStyle : style.itemStyle
             itemView.onClick = { [unowned self] in self.onClickItem?(item.id) }
+            itemView.onRequestPasteboardItem = { [unowned self] in self.onRequestPasteboardItem?(item.id) }
 
             stackView.addArrangedSubview(itemView)
 

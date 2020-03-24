@@ -108,9 +108,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         segmentedControl.style = .segmentedControl
         segmentedControl.style.dividerImage = nil
         segmentedControl.style.itemStyle.cornerRadius = 10
+        segmentedControl.style.itemStyle.isDraggable = true
         segmentedControl.style.itemStyle.padding = .init(top: 4, left: 8, bottom: 4, right: 8)
         segmentedControl.style.activeItemStyle.cornerRadius = 10
         segmentedControl.style.activeItemStyle.padding = .init(top: 4, left: 8, bottom: 4, right: 8)
+        segmentedControl.style.activeItemStyle.isDraggable = true
 
         let segmentedControlItems: [NavigationItem] = [
             .init(id: UUID(), title: "Parameters", icon: nil),
@@ -121,6 +123,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         segmentedControl.items = segmentedControlItems
         segmentedControl.activeItem = segmentedControlItems[0].id
+        segmentedControl.onRequestPasteboardItem = { id in
+            guard let item = segmentedControlItems.first(where: { $0.id == id }) else { return nil }
+            let pasteboardItem = NSPasteboardItem()
+            pasteboardItem.setString(item.title, forType: .string)
+            return pasteboardItem
+        }
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
