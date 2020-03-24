@@ -27,10 +27,12 @@ public class NavigationItemStack: NSBox {
 
     public struct Style: Equatable {
         public var itemStyle: NavigationItemView.Style = .default
+        public var activeItemStyle: NavigationItemView.Style = .default
         public var itemsHaveEqualWidth: Bool = false
         public var padding: CGFloat = 2
         public var dividerPadding: CGFloat = 4
         public var dividerImage: NSImage? = NavigationItemStack.slashDividerImage
+        public var disabledAlphaValue: CGFloat = 0.5
 
         public static var `default` = Style()
 
@@ -39,13 +41,20 @@ public class NavigationItemStack: NSBox {
             style.itemStyle = .compressible
             return style
         }()
+
+        public static var segmentedControl: Style = {
+            var style = Style.default
+            style.itemStyle.textColor = NSColor.controlTextColor.withAlphaComponent(0.5)
+            return style
+        }()
     }
 
     // MARK: Lifecycle
 
-    public init(items: [NavigationItem] = [], isEnabled: Bool = true) {
+    public init(items: [NavigationItem] = [], isEnabled: Bool = true, activeItem: UUID? = nil) {
         self.items = items
         self.isEnabled = isEnabled
+        self.activeItem = activeItem
 
         super.init(frame: .zero)
 
@@ -72,6 +81,14 @@ public class NavigationItemStack: NSBox {
     public var items: [NavigationItem] {
         didSet {
             if oldValue != items {
+                update()
+            }
+        }
+    }
+
+    public var activeItem: UUID? {
+        didSet {
+            if oldValue != activeItem {
                 update()
             }
         }
@@ -122,8 +139,9 @@ public class NavigationItemStack: NSBox {
         for item in items {
             let itemView = NavigationItemView(titleText: item.title, icon: item.icon)
             itemView.toolTip = item.title
-            itemView.style = style.itemStyle
+            itemView.style = item.id == activeItem ? style.activeItemStyle : style.itemStyle
             itemView.onClick = { [unowned self] in self.onClickItem?(item.id) }
+
             stackView.addArrangedSubview(itemView)
 
             if item != items.last {
@@ -148,7 +166,7 @@ public class NavigationItemStack: NSBox {
             }
         }
 
-        alphaValue = isEnabled ? 1 : 0.5
+        alphaValue = isEnabled ? 1 : style.disabledAlphaValue
     }
 }
 

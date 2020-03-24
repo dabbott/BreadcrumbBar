@@ -26,6 +26,8 @@ public class NavigationItemView: NSBox {
         public var cornerRadius: CGFloat = 3
         public var disabledAlphaValue: CGFloat = 0.5
         public var compressibleTitle: Bool = false
+        public var textColor: NSColor = NSColor.controlTextColor
+        public var font: NSFont = NSFont.systemFont(ofSize: NSFont.systemFontSize(for: .regular))
 
         public static var `default` = Style()
 
@@ -201,6 +203,14 @@ public class NavigationItemView: NSBox {
         titleViewTrailingConstraint?.constant = -style.padding.right
 
         titleView.setContentCompressionResistancePriority(style.compressibleTitle ? .defaultLow : .defaultHigh, for: .horizontal)
+
+        if titleView.textColor != style.textColor {
+            titleView.textColor = style.textColor
+        }
+
+        if titleView.font != style.font {
+            titleView.font = style.font
+        }
 
         switch (titleViewIsHidden, iconViewIsHidden) {
         case (false, false):

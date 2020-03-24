@@ -105,16 +105,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         navigationBar.isForwardEnabled = true
         navigationBar.isBackEnabled = false
 
+        segmentedControl.style = .segmentedControl
         segmentedControl.style.dividerImage = nil
         segmentedControl.style.itemStyle.cornerRadius = 10
         segmentedControl.style.itemStyle.padding = .init(top: 4, left: 8, bottom: 4, right: 8)
+        segmentedControl.style.activeItemStyle.cornerRadius = 10
+        segmentedControl.style.activeItemStyle.padding = .init(top: 4, left: 8, bottom: 4, right: 8)
 
-        segmentedControl.items = [
+        let segmentedControlItems: [NavigationItem] = [
             .init(id: UUID(), title: "Parameters", icon: nil),
             .init(id: UUID(), title: "Logic", icon: nil),
             .init(id: UUID(), title: "Examples", icon: nil),
             .init(id: UUID(), title: "Types", icon: nil)
         ]
+
+        segmentedControl.items = segmentedControlItems
+        segmentedControl.activeItem = segmentedControlItems[0].id
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
