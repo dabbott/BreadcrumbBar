@@ -249,18 +249,20 @@ public class BreadcrumbItem: NSBox {
         if hovered {
             pressed = true
 
-            let workItem = DispatchWorkItem(block: { [weak self] in
-                guard let self = self else { return }
+            if let _ = onLongClick {
+                let workItem = DispatchWorkItem(block: { [weak self] in
+                    guard let self = self else { return }
 
-                self.hovered = false
-                self.pressed = false
+                    self.hovered = false
+                    self.pressed = false
 
-                self.onLongClick?()
-            })
+                    self.onLongClick?()
+                })
 
-            longPressWorkItem = workItem
+                longPressWorkItem = workItem
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: workItem)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: workItem)
+            }
         }
     }
 
