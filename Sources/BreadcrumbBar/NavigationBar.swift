@@ -13,7 +13,7 @@ import AppKit
 public class NavigationBar: NSBox {
 
     public struct Style: Equatable {
-        public var breadcrumbBarStyle: BreadcrumbBar.Style = .compressible
+        public var stackStyle: NavigationItemStack.Style = .compressible
         public var navigationControlStyle: NavigationControl.Style = .default
         public var spacing: CGFloat = 4
 
@@ -22,8 +22,8 @@ public class NavigationBar: NSBox {
 
     // MARK: Lifecycle
 
-    public init(breadcrumbs: [Breadcrumb] = [], isEnabled: Bool = true) {
-        self.breadcrumbs = breadcrumbs
+    public init(items: [NavigationItem] = [], isEnabled: Bool = true) {
+        self.items = items
         self.isEnabled = isEnabled
 
         super.init(frame: .zero)
@@ -48,15 +48,15 @@ public class NavigationBar: NSBox {
         }
     }
 
-    public var breadcrumbs: [Breadcrumb] = [] {
+    public var items: [NavigationItem] = [] {
         didSet {
-            if oldValue != breadcrumbs {
+            if oldValue != items {
                 update()
             }
         }
     }
 
-    public var onClickBreadcrumb: ((UUID) -> Void)?
+    public var onClickItem: ((UUID) -> Void)?
 
     public var onClickForward: (() -> Void)?
 
@@ -103,7 +103,7 @@ public class NavigationBar: NSBox {
                     rightView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -2).isActive = true
                     rightView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -2).isActive = true
 
-                    breadcrumbBar.trailingAnchor.constraint(lessThanOrEqualTo: rightView.leadingAnchor, constant: -style.spacing).isActive = true
+                    itemStack.trailingAnchor.constraint(lessThanOrEqualTo: rightView.leadingAnchor, constant: -style.spacing).isActive = true
                 }
             }
         }
@@ -111,7 +111,7 @@ public class NavigationBar: NSBox {
 
     // MARK: Private
 
-    private var breadcrumbBar = BreadcrumbBar()
+    private var itemStack = NavigationItemStack()
 
     private var navigationControl = NavigationControl()
 
@@ -120,7 +120,7 @@ public class NavigationBar: NSBox {
         borderType = .noBorder
         contentViewMargins = .zero
 
-        breadcrumbBar.onClickBreadcrumb = { [unowned self] uuid in self.onClickBreadcrumb?(uuid) }
+        itemStack.onClickItem = { [unowned self] uuid in self.onClickItem?(uuid) }
 
         navigationControl.onClickBack = { [unowned self] in self.onClickBack?() }
         navigationControl.onClickForward = { [unowned self] in self.onClickForward?() }
@@ -128,7 +128,7 @@ public class NavigationBar: NSBox {
         navigationControl.menuForBackItem = { [unowned self] in self.menuForBackItem?() }
 
         addSubview(navigationControl)
-        addSubview(breadcrumbBar)
+        addSubview(itemStack)
     }
 
     private func setUpConstraints() {
@@ -138,21 +138,21 @@ public class NavigationBar: NSBox {
         navigationControl.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         navigationControl.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
 
-        navigationControl.trailingAnchor.constraint(lessThanOrEqualTo: breadcrumbBar.leadingAnchor, constant: -style.spacing).isActive = true
+        navigationControl.trailingAnchor.constraint(lessThanOrEqualTo: itemStack.leadingAnchor, constant: -style.spacing).isActive = true
 
-        breadcrumbBar.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        breadcrumbBar.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-        breadcrumbBar.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor).isActive = true
+        itemStack.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        itemStack.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        itemStack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor).isActive = true
 
-        let centerConstraint = breadcrumbBar.centerXAnchor.constraint(equalTo: centerXAnchor)
+        let centerConstraint = itemStack.centerXAnchor.constraint(equalTo: centerXAnchor)
         centerConstraint.priority = .defaultLow
         centerConstraint.isActive = true
     }
 
     private func update() {
-        breadcrumbBar.breadcrumbs = breadcrumbs
-        breadcrumbBar.isEnabled = isEnabled
-        breadcrumbBar.style = style.breadcrumbBarStyle
+        itemStack.items = items
+        itemStack.isEnabled = isEnabled
+        itemStack.style = style.stackStyle
 
         navigationControl.style = style.navigationControlStyle
 

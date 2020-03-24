@@ -1,5 +1,5 @@
 //
-//  BreadcrumbItem.swift
+//  NavigationItemView.swift
 //  ProjectName
 //
 //  Created by Devin Abbott on 8/26/18.
@@ -8,7 +8,7 @@
 
 import AppKit
 
-// MARK: - BreadcrumbItem
+// MARK: - NavigationItemView
 
 extension NSEdgeInsets: Equatable {
     public static func == (lhs: NSEdgeInsets, rhs: NSEdgeInsets) -> Bool {
@@ -16,7 +16,7 @@ extension NSEdgeInsets: Equatable {
     }
 }
 
-public class BreadcrumbItem: NSBox {
+public class NavigationItemView: NSBox {
 
     public struct Style: Equatable {
         public var padding: NSEdgeInsets = .init(top: 2, left: 4, bottom: 2, right: 4)
@@ -164,7 +164,7 @@ public class BreadcrumbItem: NSBox {
         titleView.topAnchor.constraint(equalTo: topAnchor, constant: style.padding.top).isActive = true
         titleView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -style.padding.bottom).isActive = true
 
-        // Use the contentLayoutGuide to center the icon and title within the BreadcrumbItem
+        // Use the contentLayoutGuide to center the icon and title within the NavigationItemView
         contentLayoutGuide.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor).isActive = true
         contentLayoutGuide.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor).isActive = true
         contentLayoutGuide.topAnchor.constraint(equalTo: topAnchor).isActive = true

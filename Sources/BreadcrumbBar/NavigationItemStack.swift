@@ -1,5 +1,5 @@
 //
-//  BreadcrumbBar.swift
+//  NavigationItemStack.swift
 //  ProjectName
 //
 //  Created by Devin Abbott on 8/26/18.
@@ -8,23 +8,9 @@
 
 import AppKit
 
-// MARK: - Breadcrumb
+// MARK: - NavigationItemStack
 
-public struct Breadcrumb: Equatable {
-    public var id: UUID
-    public var title: String
-    public var icon: NSImage?
-
-    public init(id: UUID, title: String, icon: NSImage?) {
-        self.id = id
-        self.title = title
-        self.icon = icon
-    }
-}
-
-// MARK: - BreadcrumbBar
-
-public class BreadcrumbBar: NSBox {
+public class NavigationItemStack: NSBox {
 
     public static let slashDividerImage = NSImage(size: NSSize(width: 6, height: 14), flipped: false, drawingHandler: { rect in
        NSColor.textColor.withAlphaComponent(0.4).setStroke()
@@ -40,25 +26,25 @@ public class BreadcrumbBar: NSBox {
    })
 
     public struct Style: Equatable {
-        public var breadcrumbItemStyle: BreadcrumbItem.Style = .default
+        public var itemStyle: NavigationItemView.Style = .default
         public var itemsHaveEqualWidth: Bool = false
         public var padding: CGFloat = 2
         public var dividerPadding: CGFloat = 4
-        public var dividerImage: NSImage? = BreadcrumbBar.slashDividerImage
+        public var dividerImage: NSImage? = NavigationItemStack.slashDividerImage
 
         public static var `default` = Style()
 
         public static var compressible: Style = {
             var style = Style.default
-            style.breadcrumbItemStyle = .compressible
+            style.itemStyle = .compressible
             return style
         }()
     }
 
     // MARK: Lifecycle
 
-    public init(breadcrumbs: [Breadcrumb] = [], isEnabled: Bool = true) {
-        self.breadcrumbs = breadcrumbs
+    public init(items: [NavigationItem] = [], isEnabled: Bool = true) {
+        self.items = items
         self.isEnabled = isEnabled
 
         super.init(frame: .zero)
@@ -83,15 +69,15 @@ public class BreadcrumbBar: NSBox {
         }
     }
 
-    public var breadcrumbs: [Breadcrumb] {
+    public var items: [NavigationItem] {
         didSet {
-            if oldValue != breadcrumbs {
+            if oldValue != items {
                 update()
             }
         }
     }
 
-    public var onClickBreadcrumb: ((UUID) -> Void)?
+    public var onClickItem: ((UUID) -> Void)?
 
     public var style: Style = Style() {
        didSet {
@@ -133,15 +119,15 @@ public class BreadcrumbBar: NSBox {
     private func update() {
         stackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
-        for breadcrumb in breadcrumbs {
-            let item = BreadcrumbItem(titleText: breadcrumb.title, icon: breadcrumb.icon)
-            item.toolTip = breadcrumb.title
-            item.style = style.breadcrumbItemStyle
-            item.onClick = { [unowned self] in self.onClickBreadcrumb?(breadcrumb.id) }
-            stackView.addArrangedSubview(item)
+        for item in items {
+            let itemView = NavigationItemView(titleText: item.title, icon: item.icon)
+            itemView.toolTip = item.title
+            itemView.style = style.itemStyle
+            itemView.onClick = { [unowned self] in self.onClickItem?(item.id) }
+            stackView.addArrangedSubview(itemView)
 
-            if breadcrumb != breadcrumbs.last {
-                stackView.setCustomSpacing(style.dividerPadding, after: item)
+            if item != items.last {
+                stackView.setCustomSpacing(style.dividerPadding, after: itemView)
 
                 if let dividerImage = style.dividerImage {
                     let divider = NSImageView()
@@ -154,7 +140,7 @@ public class BreadcrumbBar: NSBox {
             }
         }
 
-        let breadcrumbItems: [BreadcrumbItem] = stackView.arrangedSubviews.compactMap { $0 as? BreadcrumbItem }
+        let breadcrumbItems: [NavigationItemView] = stackView.arrangedSubviews.compactMap { $0 as? NavigationItemView }
 
         if style.itemsHaveEqualWidth {
             zip(breadcrumbItems.dropFirst(), breadcrumbItems.dropLast()).forEach { a, b in

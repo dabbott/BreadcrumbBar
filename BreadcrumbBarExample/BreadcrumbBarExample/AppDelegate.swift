@@ -19,7 +19,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let navigationBar = NavigationBar()
 
-        let segmentedControl = BreadcrumbBar()
+        let segmentedControl = NavigationItemStack()
 
         contentView.addSubview(navigationBar)
         contentView.addSubview(segmentedControl)
@@ -38,7 +38,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         navigationBar.fillColor = NSColor.controlBackgroundColor
 
-        let testButton = BreadcrumbItem(titleText: "Test", icon: nil, isEnabled: true)
+        let testButton = NavigationItemView(titleText: "Test", icon: nil, isEnabled: true)
         let accessoryView = NSStackView()
         accessoryView.addArrangedSubview(testButton)
 
@@ -46,7 +46,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let home = FileManager.default.homeDirectoryForCurrentUser
 
-        let breadcrumbs: [Breadcrumb] = home.pathComponents.enumerated().map { index, component in
+        let breadcrumbs: [NavigationItem] = home.pathComponents.enumerated().map { index, component in
             let path = home.pathComponents.dropLast(home.pathComponents.count - index - 1).reduce("/") { (result, item) -> String in
                 if item == "/" { return result }
                 return result == "/" ? "\(result)\(item)" : "\(result)/\(item)"
@@ -54,12 +54,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
             Swift.print(path)
 
-            return Breadcrumb(id: UUID(), title: component, icon: NSWorkspace.shared.icon(forFile: path))
+            return NavigationItem(id: UUID(), title: component, icon: NSWorkspace.shared.icon(forFile: path))
         }
 
-        navigationBar.breadcrumbs = breadcrumbs
+        navigationBar.items = breadcrumbs
 
-        navigationBar.onClickBreadcrumb = { id in
+        navigationBar.onClickItem = { id in
             Swift.print("click", breadcrumbs.first(where: { $0.id == id })?.title ?? "")
         }
 
@@ -106,10 +106,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         navigationBar.isBackEnabled = false
 
         segmentedControl.style.dividerImage = nil
-        segmentedControl.style.breadcrumbItemStyle.cornerRadius = 10
-        segmentedControl.style.breadcrumbItemStyle.padding = .init(top: 4, left: 8, bottom: 4, right: 8)
+        segmentedControl.style.itemStyle.cornerRadius = 10
+        segmentedControl.style.itemStyle.padding = .init(top: 4, left: 8, bottom: 4, right: 8)
 
-        segmentedControl.breadcrumbs = [
+        segmentedControl.items = [
             .init(id: UUID(), title: "Parameters", icon: nil),
             .init(id: UUID(), title: "Logic", icon: nil),
             .init(id: UUID(), title: "Examples", icon: nil),

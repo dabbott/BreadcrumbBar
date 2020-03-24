@@ -13,7 +13,7 @@ import AppKit
 public class NavigationControl: NSBox {
 
     public struct Style: Equatable {
-        public var breadcrumbItemStyle: BreadcrumbItem.Style = .default
+        public var itemStyle: NavigationItemView.Style = .default
         public var padding: CGFloat = 2
         public var menuOffset: NSPoint = .init(x: 0, y: -3)
 
@@ -73,9 +73,9 @@ public class NavigationControl: NSBox {
 
     private var stackView = NSStackView()
 
-    private var forwardItem = BreadcrumbItem(icon: NSImage(named: NSImage.goForwardTemplateName))
+    private var forwardItem = NavigationItemView(icon: NSImage(named: NSImage.goForwardTemplateName))
 
-    private var backItem = BreadcrumbItem(icon: NSImage(named: NSImage.goBackTemplateName))
+    private var backItem = NavigationItemView(icon: NSImage(named: NSImage.goBackTemplateName))
 
     private func displayPopUpMenu(_ menu: NSMenu, view: NSView) {
         let location = NSPoint(x: self.style.menuOffset.x, y: self.style.menuOffset.y - self.style.padding)
@@ -127,14 +127,14 @@ public class NavigationControl: NSBox {
     }
 
     private func update() {
-        var forwardItemStyle = style.breadcrumbItemStyle
+        var forwardItemStyle = style.itemStyle
 
         // Make adjustments for this specific icon
         forwardItemStyle.padding.left = forwardItemStyle.padding.left - 1
         forwardItemStyle.padding.right = forwardItemStyle.padding.right + 1
 
         forwardItem.style = forwardItemStyle
-        backItem.style = style.breadcrumbItemStyle
+        backItem.style = style.itemStyle
 
         forwardItem.isEnabled = isForwardEnabled
         backItem.isEnabled = isBackEnabled
