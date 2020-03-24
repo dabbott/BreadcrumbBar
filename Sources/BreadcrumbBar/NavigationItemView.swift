@@ -21,8 +21,8 @@ public class NavigationItemView: NSBox {
     public struct Style: Equatable {
         public var padding: NSEdgeInsets = .init(top: 2, left: 4, bottom: 2, right: 4)
         public var backgroundColor: NSColor = .clear
-        public var hoverBackgroundColor: NSColor = NSColor.textColor.withAlphaComponent(0.1)
-        public var pressedBackgroundColor: NSColor = NSColor.textColor.withAlphaComponent(0.05)
+        public var hoverBackgroundColor: NSColor = NSColor.themed(color: NSColor.textColor.withAlphaComponent(0.1))
+        public var pressedBackgroundColor: NSColor = NSColor.themed(color: NSColor.textColor.withAlphaComponent(0.05))
         public var cornerRadius: CGFloat = 3
         public var disabledAlphaValue: CGFloat = 0.5
         public var compressibleTitle: Bool = false

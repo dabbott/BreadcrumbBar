@@ -10,7 +10,8 @@
 		6B9C668B23DFA73F00F5FA6C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B9C668A23DFA73F00F5FA6C /* AppDelegate.swift */; };
 		6B9C668D23DFA74000F5FA6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B9C668C23DFA74000F5FA6C /* Assets.xcassets */; };
 		6B9C669023DFA74000F5FA6C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6B9C668E23DFA74000F5FA6C /* MainMenu.xib */; };
-		6B9C669A23DFA83F00F5FA6C /* BreadcrumbBar in Frameworks */ = {isa = PBXBuildFile; productRef = 6B9C669923DFA83F00F5FA6C /* BreadcrumbBar */; };
+		6BDF6DA9242AB49100848C2A /* BreadcrumbBar in Frameworks */ = {isa = PBXBuildFile; productRef = 6BDF6DA8242AB49100848C2A /* BreadcrumbBar */; };
+		6BDF6DAF242AB4E800848C2A /* ThemedColor in Frameworks */ = {isa = PBXBuildFile; productRef = 6BDF6DAE242AB4E800848C2A /* ThemedColor */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,7 +29,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6B9C669A23DFA83F00F5FA6C /* BreadcrumbBar in Frameworks */,
+				6BDF6DA9242AB49100848C2A /* BreadcrumbBar in Frameworks */,
+				6BDF6DAF242AB4E800848C2A /* ThemedColor in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,7 +83,8 @@
 			);
 			name = BreadcrumbBarExample;
 			packageProductDependencies = (
-				6B9C669923DFA83F00F5FA6C /* BreadcrumbBar */,
+				6BDF6DA8242AB49100848C2A /* BreadcrumbBar */,
+				6BDF6DAE242AB4E800848C2A /* ThemedColor */,
 			);
 			productName = BreadcrumbBarExample;
 			productReference = 6B9C668723DFA73F00F5FA6C /* BreadcrumbBarExample.app */;
@@ -112,7 +115,8 @@
 			);
 			mainGroup = 6B9C667E23DFA73F00F5FA6C;
 			packageReferences = (
-				6B9C669823DFA83F00F5FA6C /* XCRemoteSwiftPackageReference "BreadcrumbBar" */,
+				6BDF6DA7242AB49100848C2A /* XCRemoteSwiftPackageReference "BreadcrumbBar" */,
+				6BDF6DAD242AB4E800848C2A /* XCRemoteSwiftPackageReference "ThemedColor" */,
 			);
 			productRefGroup = 6B9C668823DFA73F00F5FA6C /* Products */;
 			projectDirPath = "";
@@ -335,9 +339,17 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		6B9C669823DFA83F00F5FA6C /* XCRemoteSwiftPackageReference "BreadcrumbBar" */ = {
+		6BDF6DA7242AB49100848C2A /* XCRemoteSwiftPackageReference "BreadcrumbBar" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:dabbott/BreadcrumbBar.git";
+			repositoryURL = "https://github.com/dabbott/BreadcrumbBar.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		6BDF6DAD242AB4E800848C2A /* XCRemoteSwiftPackageReference "ThemedColor" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Lona/ThemedColor.git";
 			requirement = {
 				branch = master;
 				kind = branch;
@@ -346,10 +358,15 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		6B9C669923DFA83F00F5FA6C /* BreadcrumbBar */ = {
+		6BDF6DA8242AB49100848C2A /* BreadcrumbBar */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6B9C669823DFA83F00F5FA6C /* XCRemoteSwiftPackageReference "BreadcrumbBar" */;
+			package = 6BDF6DA7242AB49100848C2A /* XCRemoteSwiftPackageReference "BreadcrumbBar" */;
 			productName = BreadcrumbBar;
+		};
+		6BDF6DAE242AB4E800848C2A /* ThemedColor */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6BDF6DAD242AB4E800848C2A /* XCRemoteSwiftPackageReference "ThemedColor" */;
+			productName = ThemedColor;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
